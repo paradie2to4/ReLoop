@@ -25,6 +25,11 @@ RENDER_EXTERNAL_HOSTNAME = config("RENDER_EXTERNAL_HOSTNAME", default="")
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
+# Vercel provides its deployment hostname at runtime; trust it automatically.
+VERCEL_URL = config("VERCEL_URL", default="")
+if VERCEL_URL:
+    ALLOWED_HOSTS.append(VERCEL_URL)
+
 # --- Applications ---------------------------------------------------------
 
 DJANGO_APPS = [
@@ -159,7 +164,12 @@ STORAGES = {
         ),
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        # Non-manifest: Vercel builds the static assets and the Python
+        # function in separate steps that don't share a filesystem, so a
+        # hashed-manifest storage (whose staticfiles.json lives only in the
+        # static build output) would break `{% static %}` lookups (e.g. in
+        # /admin/) at runtime. Plain compression still applies.
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
