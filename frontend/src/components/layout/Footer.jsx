@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
 import { Leaf } from 'lucide-react'
 
-// data-theme="dark" keeps the footer dark in both light and dark mode.
+// Follows the theme: frosted white glass in light mode, near-black in dark mode.
 export default function Footer() {
   return (
-    <footer data-theme="dark" className="mt-16 border-t border-sand-200 bg-sand-50 text-navy-700">
+    <footer className="site-footer mt-16 border-t border-sand-200 bg-surface text-navy-700">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
