@@ -32,6 +32,8 @@ class ConversationViewSet(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         conversation = self.get_object()
         conversation.messages.filter(is_read=False).exclude(sender=request.user).update(is_read=True)
+        # Opening the chat also clears its "New message" notifications.
+        request.user.notifications.filter(is_read=False, link=f"/messages/{conversation.id}").update(is_read=True)
         serializer = self.get_serializer(conversation)
         return Response(serializer.data)
 
@@ -59,7 +61,10 @@ class ConversationViewSet(viewsets.ReadOnlyModelViewSet):
 
         Message.objects.create(conversation=conversation, sender=request.user, text=text)
         conversation.save(update_fields=["updated_at"])
-        notify(recipient, "New message", f"{request.user.full_name} sent you a message.", "MESSAGE")
+        notify(
+            recipient, f"New message from {request.user.full_name}", _preview(text), "MESSAGE",
+            link=f"/messages/{conversation.id}",
+        )
 
         return Response(
             ConversationDetailSerializer(conversation, context={"request": request}).data,
@@ -78,5 +83,13 @@ class MessageCreateView(CreateAPIView):
             raise permissions.PermissionDenied("You are not part of this conversation.")
         message = serializer.save(sender=user)
         conversation.save(update_fields=["updated_at"])
-        notify(conversation.other_participant(user), "New message", f"{user.full_name} sent you a message.", "MESSAGE")
+        notify(
+            conversation.other_participant(user), f"New message from {user.full_name}", _preview(message.text), "MESSAGE",
+            link=f"/messages/{conversation.id}",
+        )
         return message
+
+
+def _preview(text, limit=120):
+    text = " ".join(str(text).split())
+    return text if len(text) <= limit else text[: limit - 1] + "…"

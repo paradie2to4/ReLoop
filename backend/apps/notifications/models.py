@@ -21,6 +21,8 @@ class Notification(models.Model):
     message = models.CharField(max_length=500)
     type = models.CharField(max_length=30, choices=Type.choices, default=Type.GENERAL)
     is_read = models.BooleanField(default=False)
+    # Page in the app this notification opens, e.g. "/messages/12" or "/orders/7".
+    link = models.CharField(max_length=200, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

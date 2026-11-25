@@ -60,7 +60,7 @@ def checkout_cart(user, payment_method, shipping_location, notes=""):
 
     sellers = {item.product.seller for item in items}
     for seller in sellers:
-        notify(seller, "New order received", f"You have a new order (#{order.id}).", "ORDER")
+        notify(seller, "New order received", f"You have a new order (#{order.id}).", "ORDER", link=f"/orders/{order.id}")
 
     return order
 
@@ -93,7 +93,7 @@ def transition_order_status(order, new_status=None, new_payment_status=None):
                 product.save(update_fields=["status"])
             ImpactCalculationService.record(user=order.buyer, product=product, transaction_type="SALE")
 
-    notify(order.buyer, "Order update", f"Your order #{order.id} is now {order.status}.", "ORDER")
+    notify(order.buyer, "Order update", f"Your order #{order.id} is now {order.status}.", "ORDER", link=f"/orders/{order.id}")
     return order
 
 
@@ -224,7 +224,7 @@ def refresh_momo_payment(payment):
         from apps.notifications.services import notify
 
         for seller in {item.seller for item in order.items.select_related("seller")}:
-            notify(seller, "Payment received", f"Order #{order.id} was paid with MTN Mobile Money.", "ORDER")
+            notify(seller, "Payment received", f"Order #{order.id} was paid with MTN Mobile Money.", "ORDER", link=f"/orders/{order.id}")
     elif payment.status == MomoPayment.Status.FAILED and order.payment_status == Order.PaymentStatus.PENDING:
         order.payment_status = Order.PaymentStatus.FAILED
         order.save(update_fields=["payment_status", "updated_at"])

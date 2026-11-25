@@ -5,6 +5,11 @@ export async function fetchNotifications() {
   return data
 }
 
+export async function fetchNotificationSummary() {
+  const { data } = await api.get('/notifications/summary/')
+  return data
+}
+
 export async function markNotificationRead(id) {
   const { data } = await api.patch(`/notifications/${id}/read/`)
   return data

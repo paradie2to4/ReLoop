@@ -19,15 +19,27 @@ class ConversationSerializer(serializers.ModelSerializer):
     other_participant_name = serializers.SerializerMethodField()
     other_participant_id = serializers.SerializerMethodField()
     product_title = serializers.CharField(source="product.title", read_only=True, default="")
+    product_image = serializers.SerializerMethodField()
     last_message = serializers.SerializerMethodField()
     unread_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Conversation
         fields = [
-            "id", "product", "product_title", "other_participant_id", "other_participant_name",
+            "id", "product", "product_title", "product_image", "other_participant_id", "other_participant_name",
             "last_message", "unread_count", "created_at", "updated_at",
         ]
+
+    def get_product_image(self, obj):
+        if not obj.product:
+            return None
+        from apps.products.serializers import absolute_url
+
+        images = list(obj.product.images.all())
+        if not images:
+            return None
+        primary = next((i for i in images if i.is_primary), images[0])
+        return absolute_url(self.context.get("request"), primary.image)
 
     def _user(self):
         return self.context["request"].user
