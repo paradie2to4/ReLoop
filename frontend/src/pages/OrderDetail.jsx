@@ -1,17 +1,19 @@
-import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useLocation, useParams } from 'react-router-dom'
+import { Smartphone } from 'lucide-react'
 import Badge from '../components/ui/Badge'
 import Button from '../components/ui/Button'
 import Select from '../components/ui/Select'
 import Textarea from '../components/ui/Textarea'
+import Input from '../components/ui/Input'
 import Rating from '../components/ui/Rating'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import ErrorMessage from '../components/ui/ErrorMessage'
-import { fetchOrder, updateOrderStatus } from '../services/orders'
+import { checkMomoStatus, fetchOrder, payWithMomo, updateOrderStatus } from '../services/orders'
 import { createReview } from '../services/reviews'
 import { apiErrorMessage } from '../services/api'
 import { formatDate, formatRWF } from '../utils/format'
-import { ORDER_STATUSES } from '../utils/constants'
+import { ORDER_STATUSES, PAYMENT_METHODS } from '../utils/constants'
 import { useAuth } from '../context/AuthContext'
 
 export default function OrderDetail() {
@@ -39,6 +41,7 @@ export default function OrderDetail() {
 
   const isSellerOfOrder = order.items.some((item) => item.seller === user.id)
   const isBuyer = order.buyer === user.id
+  const isMomo = order.payment_method === 'MOMO'
   const currentStepIndex = ORDER_STATUSES.findIndex((s) => s.value === order.status)
 
   async function handleStatusChange(newStatus) {
@@ -106,11 +109,23 @@ export default function OrderDetail() {
 
       <div className="mt-6 grid gap-4 rounded-lg border border-sand-200 bg-white p-5 sm:grid-cols-2">
         <Info label="Total" value={formatRWF(order.total_amount)} />
-        <Info label="Payment method" value={order.payment_method.replace(/_/g, ' ')} />
+        <Info
+          label="Payment method"
+          value={PAYMENT_METHODS.find((m) => m.value === order.payment_method)?.label || order.payment_method.replace(/_/g, ' ')}
+        />
         <Info label="Payment status" value={order.payment_status} />
         <Info label="Location" value={order.shipping_location} />
         <Info label="Placed on" value={formatDate(order.created_at)} />
       </div>
+
+      {isBuyer && isMomo && order.payment_status !== 'PAID' && order.status !== 'CANCELLED' && (
+        <MomoPanel order={order} onUpdate={setOrder} />
+      )}
+      {isMomo && order.payment_status === 'PAID' && (
+        <p className="mt-6 rounded-lg border border-teal-200 bg-teal-50 p-4 text-sm text-teal-800">
+          Paid with MTN Mobile Money{order.momo_payment?.phone ? ` from ${order.momo_payment.phone}` : ''}.
+        </p>
+      )}
 
       {isSellerOfOrder && order.status !== 'COMPLETED' && order.status !== 'CANCELLED' && (
         <div className="mt-6 flex flex-wrap items-center gap-3 rounded-lg border border-sand-200 bg-white p-5">
@@ -122,7 +137,7 @@ export default function OrderDetail() {
             options={ORDER_STATUSES}
             disabled={updating}
           />
-          {order.payment_status !== 'PAID' && (
+          {order.payment_status !== 'PAID' && !isMomo && (
             <Button size="sm" variant="outline" onClick={handleMarkPaid} loading={updating}>
               Mark as paid
             </Button>
@@ -142,6 +157,111 @@ export default function OrderDetail() {
         </form>
       )}
       {reviewSubmitted && <p className="mt-6 text-sm text-teal-700">Thanks for your review!</p>}
+    </div>
+  )
+}
+
+const POLL_EVERY_MS = 5000
+const POLL_FOR_MS = 3 * 60 * 1000
+
+function MomoPanel({ order, onUpdate }) {
+  const location = useLocation()
+  const payment = order.momo_payment
+  const isPending = payment?.status === 'PENDING'
+  const [phone, setPhone] = useState(payment?.phone || '')
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState(location.state?.momoError || '')
+  const [timedOut, setTimedOut] = useState(false)
+  const startedAt = useRef(Date.now())
+
+  // While MTN is waiting for the buyer to approve, ask the server every few seconds.
+  useEffect(() => {
+    if (!isPending) return undefined
+    startedAt.current = Date.now()
+    setTimedOut(false)
+    const timer = setInterval(async () => {
+      if (Date.now() - startedAt.current > POLL_FOR_MS) {
+        clearInterval(timer)
+        setTimedOut(true)
+        return
+      }
+      try {
+        onUpdate(await checkMomoStatus(order.id))
+      } catch {
+        // Network hiccup: try again on the next tick.
+      }
+    }, POLL_EVERY_MS)
+    return () => clearInterval(timer)
+  }, [isPending, payment?.reference_id, order.id, onUpdate])
+
+  async function handlePay(e) {
+    e.preventDefault()
+    setError('')
+    setSending(true)
+    try {
+      onUpdate(await payWithMomo(order.id, phone))
+    } catch (err) {
+      setError(apiErrorMessage(err, 'Could not send the MoMo payment request.'))
+    } finally {
+      setSending(false)
+    }
+  }
+
+  async function handleCheckNow() {
+    setTimedOut(false)
+    startedAt.current = Date.now()
+    try {
+      onUpdate(await checkMomoStatus(order.id))
+    } catch (err) {
+      setError(apiErrorMessage(err, 'Could not check the payment.'))
+    }
+  }
+
+  return (
+    <div className="mt-6 space-y-3 rounded-lg border border-sand-200 bg-white p-5">
+      <div className="flex items-center gap-2">
+        <Smartphone size={18} className="text-teal-700" />
+        <p className="text-sm font-medium text-navy-900">Pay {formatRWF(order.total_amount)} with MTN Mobile Money</p>
+      </div>
+
+      {isPending ? (
+        <div className="space-y-2 text-sm text-navy-700">
+          <p>
+            We sent a payment request to <span className="font-medium">{payment.phone}</span>. Approve it on your phone with
+            your MoMo PIN. This page updates by itself.
+          </p>
+          <p className="text-xs text-navy-500">No prompt? Dial *182*7*1# to see pending approvals.</p>
+          {timedOut ? (
+            <Button size="sm" variant="outline" onClick={handleCheckNow}>
+              Check payment again
+            </Button>
+          ) : (
+            <LoadingSpinner />
+          )}
+        </div>
+      ) : (
+        <form onSubmit={handlePay} className="space-y-3">
+          {payment?.status === 'FAILED' && (
+            <p className="text-sm text-red-600">
+              The last payment didn't go through{payment.failure_reason ? ` (${payment.failure_reason.replace(/_/g, ' ').toLowerCase()})` : ''}. You can try again.
+            </p>
+          )}
+          <Input
+            label="MTN MoMo number"
+            name="momo_phone"
+            type="tel"
+            inputMode="tel"
+            required
+            placeholder="078 123 4567"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <Button type="submit" size="sm" loading={sending}>
+            Send payment request
+          </Button>
+        </form>
+      )}
+      {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   )
 }

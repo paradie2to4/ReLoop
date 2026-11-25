@@ -43,6 +43,7 @@ class Order(models.Model):
     class PaymentMethod(models.TextChoices):
         CASH = "CASH", "Cash on Delivery"
         PAY_ON_PICKUP = "PAY_ON_PICKUP", "Payment on Pickup"
+        MOMO = "MOMO", "MTN Mobile Money"
 
     class PaymentStatus(models.TextChoices):
         PENDING = "PENDING", "Pending"
@@ -76,3 +77,30 @@ class OrderItem(models.Model):
     @property
     def subtotal(self):
         return self.price * self.quantity
+
+
+class MomoPayment(models.Model):
+    """One MTN MoMo "Request to Pay" attempt for an order. An order can have
+    several attempts (e.g. the buyer declined, then tried again)."""
+
+    class Status(models.TextChoices):
+        PENDING = "PENDING", "Pending"
+        SUCCESSFUL = "SUCCESSFUL", "Successful"
+        FAILED = "FAILED", "Failed"
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="momo_payments")
+    reference_id = models.UUIDField(unique=True)
+    phone = models.CharField(max_length=20)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    currency = models.CharField(max_length=3)
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
+    financial_transaction_id = models.CharField(max_length=64, blank=True)
+    failure_reason = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"MoMo {self.reference_id} for order #{self.order_id} ({self.status})"
