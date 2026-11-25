@@ -308,16 +308,21 @@ function Chat({ conversation, setConversation, userId, onSent, onBack }) {
                   </span>
                 </div>
               )}
+              {/* "Pine and mint" two-tone bubbles: theirs pale with a mint edge, yours solid. */}
               <div className={`flex ${mine ? 'justify-end' : 'justify-start'} ${grouped ? '' : 'pt-2'}`}>
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm shadow-sm sm:max-w-md ${
                     mine
-                      ? 'rounded-br-md bg-teal-600 text-on-accent'
-                      : 'rounded-bl-md border border-sand-200 bg-surface text-navy-900 dark:border-sand-300 dark:bg-navy-100'
+                      ? 'rounded-tr-sm bg-[#0b3a2a] text-[#dcfce7] dark:bg-[#4ade80] dark:font-medium dark:text-[#052e16]'
+                      : 'rounded-tl-sm border-l-[3px] border-[#4ade80] bg-[#e9fbf1] text-[#0b3a2a] dark:bg-[#102119] dark:text-[#dcfce7]'
                   } ${m.pending ? 'opacity-70' : ''}`}
                 >
                   <p className="whitespace-pre-wrap break-words leading-relaxed">{m.text}</p>
-                  <p className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${mine ? 'text-on-accent/75' : 'text-navy-500'}`}>
+                  <p
+                    className={`mt-1 flex items-center justify-end gap-1 text-[10px] font-normal ${
+                      mine ? 'text-[#4ade80] dark:text-[#14532d]' : 'text-[#4f7d68] dark:text-[#6d9a83]'
+                    }`}
+                  >
                     {m.pending ? 'Sending…' : shortTime(m.created_at)}
                     {mine && !m.pending && m.id === lastMine?.id && m.is_read && (
                       <span className="flex items-center gap-0.5"><CheckCheck size={12} /> Seen</span>
