@@ -89,7 +89,7 @@ export default function EditProduct() {
         </Button>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-4 rounded-lg border border-sand-200 bg-white p-6">
+      <form onSubmit={handleSave} className="space-y-4 rounded-lg border border-sand-200 bg-surface p-6">
         <Input label="Title" value={form.title} onChange={(e) => update('title', e.target.value)} />
         <Textarea label="Description" value={form.description} onChange={(e) => update('description', e.target.value)} rows={5} />
         <Select label="Category" value={form.category} onChange={(e) => update('category', e.target.value)} options={categories.map((c) => ({ value: c.id, label: c.name }))} />
@@ -108,7 +108,7 @@ export default function EditProduct() {
             {product.images.map((img) => (
               <div key={img.id} className="group relative h-16 w-16 overflow-hidden rounded-md border border-sand-200">
                 <img src={img.url} alt="" className="h-full w-full object-cover" />
-                <button type="button" onClick={() => handleDeleteImage(img.id)} className="absolute inset-0 flex items-center justify-center bg-navy-950/60 text-white opacity-0 group-hover:opacity-100">
+                <button type="button" onClick={() => handleDeleteImage(img.id)} className="absolute inset-0 flex items-center justify-center bg-black/60 text-white opacity-0 group-hover:opacity-100">
                   <Trash2 size={14} />
                 </button>
               </div>

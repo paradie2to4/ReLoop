@@ -61,7 +61,7 @@ export default function RepairProviders() {
       ) : (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {providers.map((p) => (
-            <div key={p.id} className="rounded-lg border border-sand-200 bg-white p-5">
+            <div key={p.id} className="rounded-lg border border-sand-200 bg-surface p-5">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-medium text-navy-900">{p.name}</p>

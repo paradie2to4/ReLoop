@@ -112,7 +112,7 @@ export default function AdminDashboard() {
       {tab === 'Users' && (
         <div className="mt-6 space-y-2">
           {users.map((u) => (
-            <div key={u.id} className="flex items-center justify-between rounded-lg border border-sand-200 bg-white p-3">
+            <div key={u.id} className="flex items-center justify-between rounded-lg border border-sand-200 bg-surface p-3">
               <div>
                 <p className="text-sm font-medium text-navy-900">{u.full_name}</p>
                 <p className="text-xs text-navy-500">{u.email} · {u.location}</p>
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
           </form>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {categories.map((c) => (
-              <div key={c.id} className="flex items-center justify-between rounded-md border border-sand-200 bg-white px-3 py-2 text-sm">
+              <div key={c.id} className="flex items-center justify-between rounded-md border border-sand-200 bg-surface px-3 py-2 text-sm">
                 <span>{c.name} <span className="text-navy-400">({c.product_count ?? 0})</span></span>
                 <button onClick={() => handleDeleteCategory(c.id)} className="text-xs text-red-600">Remove</button>
               </div>
@@ -151,7 +151,7 @@ export default function AdminDashboard() {
       {tab === 'Reports' && (
         <div className="mt-6 space-y-2">
           {reports.map((r) => (
-            <div key={r.id} className="rounded-lg border border-sand-200 bg-white p-4">
+            <div key={r.id} className="rounded-lg border border-sand-200 bg-surface p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-navy-900">{r.reason.replace(/_/g, ' ')}</p>
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
 
 function Section({ title, icon: Icon, children }) {
   return (
-    <div className="rounded-lg border border-sand-200 bg-white p-5">
+    <div className="rounded-lg border border-sand-200 bg-surface p-5">
       <div className="mb-3 flex items-center gap-2 text-navy-900">
         <Icon size={16} className="text-teal-600" />
         <h3 className="font-medium">{title}</h3>

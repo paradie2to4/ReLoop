@@ -46,7 +46,7 @@ export default function Notifications() {
               key={n.id}
               onClick={() => !n.is_read && handleMarkRead(n.id)}
               className={`flex w-full items-start justify-between gap-4 rounded-lg border p-4 text-left ${
-                n.is_read ? 'border-sand-200 bg-white' : 'border-teal-300 bg-teal-50'
+                n.is_read ? 'border-sand-200 bg-surface' : 'border-teal-300 bg-teal-50'
               }`}
             >
               <div>

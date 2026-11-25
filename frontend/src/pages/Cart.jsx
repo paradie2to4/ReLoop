@@ -72,7 +72,7 @@ export default function Cart() {
       <div className="mt-6 grid gap-8 lg:grid-cols-3">
         <div className="space-y-3 lg:col-span-2">
           {items.map((item) => (
-            <div key={item.id} className="flex gap-4 rounded-lg border border-sand-200 bg-white p-4">
+            <div key={item.id} className="flex gap-4 rounded-lg border border-sand-200 bg-surface p-4">
               <Link to={`/products/${item.product.id}`} className="h-20 w-20 shrink-0 overflow-hidden rounded-md bg-sand-100">
                 {item.product.primary_image && <img src={item.product.primary_image} alt="" className="h-full w-full object-cover" />}
               </Link>
@@ -105,7 +105,7 @@ export default function Cart() {
           ))}
         </div>
 
-        <form onSubmit={handleCheckout} className="h-fit space-y-4 rounded-lg border border-sand-200 bg-white p-6">
+        <form onSubmit={handleCheckout} className="h-fit space-y-4 rounded-lg border border-sand-200 bg-surface p-6">
           <h2 className="font-semibold text-navy-900">Checkout</h2>
           <div className="flex justify-between border-b border-sand-100 pb-3 text-sm">
             <span className="text-navy-600">Total</span>
@@ -129,7 +129,7 @@ export default function Cart() {
           <Input label="Notes (optional)" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
           {!payingWithMomo && <p className="text-xs text-navy-500">Pay in cash on pickup or delivery.</p>}
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <Button type="submit" className="w-full" loading={submitting}>
+          <Button type="submit" variant="accent" className="w-full" loading={submitting}>
             {payingWithMomo ? 'Place order & pay with MoMo' : 'Place order'}
           </Button>
         </form>

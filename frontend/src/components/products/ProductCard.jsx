@@ -33,7 +33,7 @@ export default function ProductCard({ product, onWishlistChange }) {
   return (
     <Link
       to={`/products/${product.id}`}
-      className="group flex flex-col overflow-hidden rounded-lg border border-sand-200 bg-white transition-shadow hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-sand-200 bg-surface transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-400/60 hover:shadow-xl hover:shadow-black/10"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-sand-100">
         {product.primary_image ? (
@@ -49,13 +49,13 @@ export default function ProductCard({ product, onWishlistChange }) {
           <button
             onClick={toggleWishlist}
             aria-label="Toggle wishlist"
-            className="absolute right-2 top-2 rounded-full bg-white/90 p-2 shadow-sm hover:bg-white"
+            className={`absolute right-2 top-2 rounded-full bg-surface/90 p-2 shadow-sm backdrop-blur hover:bg-surface ${wishlisted ? 'text-teal-600' : 'text-navy-800'}`}
           >
-            <Heart size={16} fill={wishlisted ? '#1e9e82' : 'none'} stroke={wishlisted ? '#1e9e82' : '#0d2635'} />
+            <Heart size={16} fill={wishlisted ? 'currentColor' : 'none'} stroke="currentColor" />
           </button>
         )}
         {product.is_featured && (
-          <span className="absolute left-2 top-2 rounded-full bg-navy-900 px-2 py-0.5 text-xs font-medium text-sand-50">
+          <span className="absolute left-2 top-2 rounded-full bg-teal-600 px-2.5 py-0.5 text-xs font-semibold text-on-accent">
             Featured
           </span>
         )}

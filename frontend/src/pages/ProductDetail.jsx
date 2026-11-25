@@ -156,7 +156,7 @@ export default function ProductDetail() {
                   <MessageCircle size={16} /> Message Seller
                 </Button>
                 <Button onClick={toggleWishlist} variant="ghost">
-                  <Heart size={16} fill={product.is_wishlisted ? '#1e9e82' : 'none'} /> Save
+                  <Heart size={16} fill={product.is_wishlisted ? 'var(--color-teal-600)' : 'none'} /> Save
                 </Button>
               </>
             )}
@@ -165,7 +165,7 @@ export default function ProductDetail() {
           {product.condition === 'NEEDS_REPAIR' && (
             <Link
               to="/repair-providers"
-              className="mt-6 flex items-center gap-3 rounded-lg border border-dashed border-navy-300 bg-white p-4 text-sm text-navy-800 hover:bg-sand-100"
+              className="mt-6 flex items-center gap-3 rounded-lg border border-dashed border-navy-300 bg-surface p-4 text-sm text-navy-800 hover:bg-sand-100"
             >
               <Wrench size={18} className="text-teal-600" />
               This item needs repair — find a trusted repair provider instead of discarding it.

@@ -1,7 +1,7 @@
 const VARIANTS = {
   primary: 'bg-navy-900 text-sand-50 hover:bg-navy-800 disabled:bg-navy-900/40',
-  accent: 'bg-teal-600 text-white hover:bg-teal-700 disabled:bg-teal-600/40',
-  outline: 'border border-navy-900 text-navy-900 hover:bg-navy-900 hover:text-sand-50 disabled:opacity-40',
+  accent: 'bg-teal-600 text-on-accent font-semibold hover:bg-teal-700 disabled:bg-teal-600/40',
+  outline: 'border border-sand-300 bg-surface text-navy-900 hover:border-navy-900 disabled:opacity-40',
   ghost: 'text-navy-700 hover:bg-sand-200 disabled:opacity-40',
   danger: 'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-600/40',
 }
@@ -24,7 +24,7 @@ export default function Button({
 }) {
   return (
     <Component
-      className={`inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors cursor-pointer disabled:cursor-not-allowed ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors cursor-pointer disabled:cursor-not-allowed ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
       disabled={disabled || loading}
       {...props}
     >

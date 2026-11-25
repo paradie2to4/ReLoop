@@ -10,7 +10,7 @@ export default function StepIndicator({ steps, current }) {
             <span
               className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
                 state === 'done'
-                  ? 'bg-teal-600 text-white'
+                  ? 'bg-teal-600 text-on-accent'
                   : state === 'active'
                     ? 'bg-navy-900 text-sand-50'
                     : 'bg-sand-200 text-navy-500'

@@ -27,7 +27,7 @@ export default function RepairRequests() {
       ) : (
         <div className="mt-6 space-y-3">
           {requests.map((r) => (
-            <div key={r.id} className="rounded-lg border border-sand-200 bg-white p-4">
+            <div key={r.id} className="rounded-lg border border-sand-200 bg-surface p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-navy-900">{r.provider_name}</p>
