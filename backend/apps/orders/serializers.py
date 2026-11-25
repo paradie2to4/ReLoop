@@ -45,7 +45,10 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class MomoPaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = MomoPayment
-        fields = ["id", "reference_id", "phone", "amount", "currency", "status", "failure_reason", "created_at", "updated_at"]
+        fields = [
+            "id", "reference_id", "phone", "amount", "currency", "status",
+            "financial_transaction_id", "failure_reason", "created_at", "updated_at",
+        ]
         read_only_fields = fields
 
 

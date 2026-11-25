@@ -30,6 +30,11 @@ export async function checkMomoStatus(id) {
   return data
 }
 
+export async function cancelOrder(id) {
+  const { data } = await api.post(`/orders/${id}/cancel/`)
+  return data
+}
+
 export async function updateOrderStatus(id, payload) {
   const { data } = await api.patch(`/orders/${id}/status/`, payload)
   return data

@@ -9,7 +9,7 @@ import Input from '../components/ui/Input'
 import Rating from '../components/ui/Rating'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import ErrorMessage from '../components/ui/ErrorMessage'
-import { checkMomoStatus, fetchOrder, payWithMomo, updateOrderStatus } from '../services/orders'
+import { cancelOrder, checkMomoStatus, fetchMomoConfig, fetchOrder, payWithMomo, updateOrderStatus } from '../services/orders'
 import { createReview } from '../services/reviews'
 import { apiErrorMessage } from '../services/api'
 import { formatDate, formatRWF } from '../utils/format'
@@ -26,6 +26,7 @@ export default function OrderDetail() {
   const [review, setReview] = useState({ rating: 5, comment: '' })
   const [reviewSubmitted, setReviewSubmitted] = useState(false)
   const [reviewError, setReviewError] = useState('')
+  const [cancelError, setCancelError] = useState('')
 
   const load = () => {
     setLoading(true)
@@ -49,6 +50,20 @@ export default function OrderDetail() {
     try {
       const updated = await updateOrderStatus(id, { status: newStatus })
       setOrder(updated)
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  async function handleCancel() {
+    if (!window.confirm('Cancel this order? The items will go back on sale.')) return
+    setCancelError('')
+    setUpdating(true)
+    try {
+      setOrder(await cancelOrder(id))
+    } catch (err) {
+      setCancelError(apiErrorMessage(err, 'Could not cancel the order.'))
+      load()
     } finally {
       setUpdating(false)
     }
@@ -122,9 +137,21 @@ export default function OrderDetail() {
         <MomoPanel order={order} onUpdate={setOrder} />
       )}
       {isMomo && order.payment_status === 'PAID' && (
-        <p className="mt-6 rounded-lg border border-teal-200 bg-teal-50 p-4 text-sm text-teal-800">
-          Paid with MTN Mobile Money{order.momo_payment?.phone ? ` from ${order.momo_payment.phone}` : ''}.
-        </p>
+        <div className="mt-6 rounded-lg border border-teal-200 bg-teal-50 p-4 text-sm text-teal-800">
+          <p>Paid with MTN Mobile Money{order.momo_payment?.phone ? ` from ${order.momo_payment.phone}` : ''}.</p>
+          {order.momo_payment?.financial_transaction_id && (
+            <p className="mt-1 text-xs">MTN transaction ID: {order.momo_payment.financial_transaction_id}</p>
+          )}
+        </div>
+      )}
+
+      {isBuyer && order.status === 'PENDING' && order.payment_status !== 'PAID' && (
+        <div className="mt-4 flex items-center justify-between gap-3 text-sm">
+          {cancelError ? <p className="text-red-600">{cancelError}</p> : <span />}
+          <Button size="sm" variant="outline" onClick={handleCancel} loading={updating}>
+            Cancel order
+          </Button>
+        </div>
       )}
 
       {isSellerOfOrder && order.status !== 'COMPLETED' && order.status !== 'CANCELLED' && (
@@ -172,7 +199,12 @@ function MomoPanel({ order, onUpdate }) {
   const [sending, setSending] = useState(false)
   const [error, setError] = useState(location.state?.momoError || '')
   const [timedOut, setTimedOut] = useState(false)
+  const [sandbox, setSandbox] = useState(false)
   const startedAt = useRef(Date.now())
+
+  useEffect(() => {
+    fetchMomoConfig().then((cfg) => setSandbox(Boolean(cfg.sandbox))).catch(() => {})
+  }, [])
 
   // While MTN is waiting for the buyer to approve, ask the server every few seconds.
   useEffect(() => {
@@ -223,6 +255,16 @@ function MomoPanel({ order, onUpdate }) {
         <Smartphone size={18} className="text-teal-700" />
         <p className="text-sm font-medium text-navy-900">Pay {formatRWF(order.total_amount)} with MTN Mobile Money</p>
       </div>
+
+      {sandbox && (
+        <div className="rounded-md bg-amber-50 p-3 text-xs text-amber-900">
+          <p className="font-medium">Test mode (MTN MoMo sandbox): no real money is taken.</p>
+          <p className="mt-1">
+            Any number is approved automatically, e.g. 078 123 4567. To see a failed payment, use 46733123450.
+          </p>
+        </div>
+      )}
+      <p className="text-xs text-navy-500">Unpaid orders are cancelled automatically after 30 minutes.</p>
 
       {isPending ? (
         <div className="space-y-2 text-sm text-navy-700">

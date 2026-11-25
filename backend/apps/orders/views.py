@@ -14,7 +14,14 @@ from .serializers import (
     OrderSerializer,
     OrderStatusUpdateSerializer,
 )
-from .services import checkout_cart, refresh_momo_payment, start_momo_payment, transition_order_status
+from .services import (
+    cancel_order_by_buyer,
+    checkout_cart,
+    expire_unpaid_momo_orders,
+    refresh_momo_payment,
+    start_momo_payment,
+    transition_order_status,
+)
 
 
 class CartView(APIView):
@@ -79,6 +86,20 @@ class OrderViewSet(viewsets.ModelViewSet):
         if self.action == "create":
             return CheckoutSerializer
         return OrderSerializer
+
+    def list(self, request, *args, **kwargs):
+        expire_unpaid_momo_orders()
+        return super().list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        expire_unpaid_momo_orders()
+        return super().retrieve(request, *args, **kwargs)
+
+    @action(detail=True, methods=["post"])
+    def cancel(self, request, pk=None):
+        """Let the buyer cancel an order the seller hasn't confirmed and that isn't paid."""
+        order = cancel_order_by_buyer(self.get_object(), request.user)
+        return Response(OrderSerializer(order).data)
 
     def create(self, request, *args, **kwargs):
         serializer = CheckoutSerializer(data=request.data)

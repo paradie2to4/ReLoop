@@ -2,8 +2,12 @@ import logging
 import re
 from decimal import Decimal, InvalidOperation
 
+from datetime import timedelta
+
 from django.conf import settings
+from django.core.cache import cache
 from django.db import transaction
+from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
 from apps.products.models import Product
@@ -148,8 +152,8 @@ def start_momo_payment(order, phone):
             amount=_momo_amount(order.total_amount),
             phone=phone,
             external_id=f"reloop-order-{order.id}",
-            payer_message=f"ReLoop order #{order.id}",
-            payee_note=f"Payment for ReLoop order #{order.id}",
+            payer_message=f"ReLoop order {order.id}",
+            payee_note=f"Payment for ReLoop order {order.id}",
         )
     except momo.MomoError as exc:
         raise ValidationError(str(exc))
@@ -180,6 +184,12 @@ def refresh_momo_payment(payment):
 
     try:
         data = momo.get_payment_status(payment.reference_id)
+    except momo.MomoNotFound:
+        # MTN never registered this request. Give it a short grace period in
+        # case MTN is slow to record it, then fail it so the buyer can retry.
+        if timezone.now() - payment.created_at < timedelta(minutes=2):
+            return payment
+        data = {"status": "FAILED", "reason": "MTN has no record of this payment request."}
     except momo.MomoError:
         return payment  # Keep it pending; the next check will try again.
 
@@ -219,3 +229,59 @@ def refresh_momo_payment(payment):
         order.payment_status = Order.PaymentStatus.FAILED
         order.save(update_fields=["payment_status", "updated_at"])
     return payment
+
+
+def _cancel_unpaid_order(order, reason):
+    """Cancel an order that was never paid, returning its items to stock.
+
+    Pending MoMo prompts are checked with MTN first, so an order whose payment
+    went through at the last moment is never cancelled.
+    """
+    for payment in order.momo_payments.filter(status=MomoPayment.Status.PENDING):
+        refresh_momo_payment(payment)
+    order.refresh_from_db()
+    if order.payment_status == Order.PaymentStatus.PAID:
+        return False
+    order.momo_payments.filter(status=MomoPayment.Status.PENDING).update(
+        status=MomoPayment.Status.FAILED, failure_reason=reason[:255]
+    )
+    transition_order_status(order, new_status=Order.Status.CANCELLED)
+    return True
+
+
+def cancel_order_by_buyer(order, user):
+    if order.buyer_id != user.id:
+        raise ValidationError("Only the buyer can cancel this order.")
+    if order.status != Order.Status.PENDING:
+        raise ValidationError("Only orders that the seller hasn't confirmed yet can be cancelled.")
+    if order.payment_status == Order.PaymentStatus.PAID:
+        raise ValidationError("This order is already paid. Please contact the seller.")
+    if not _cancel_unpaid_order(order, "Order cancelled by the buyer."):
+        raise ValidationError("This order was just paid, so it can't be cancelled. Please contact the seller.")
+    order.refresh_from_db()
+    return order
+
+
+def expire_unpaid_momo_orders(force=False):
+    """Cancel MoMo orders left unpaid for too long, so their items go back on sale.
+
+    The backend runs without a scheduler, so this is called from busy endpoints
+    and throttled to run at most once a minute (pass force=True to skip that).
+    Returns the number of orders cancelled.
+    """
+    if not force and not cache.add("momo_order_expiry_lock", 1, 60):
+        return 0
+    cutoff = timezone.now() - timedelta(minutes=settings.MOMO_ORDER_EXPIRY_MINUTES)
+    stale = Order.objects.filter(
+        payment_method=Order.PaymentMethod.MOMO,
+        status=Order.Status.PENDING,
+        created_at__lt=cutoff,
+    ).exclude(payment_status=Order.PaymentStatus.PAID)[:50]
+    cancelled = 0
+    for order in stale:
+        try:
+            if _cancel_unpaid_order(order, "Not paid in time."):
+                cancelled += 1
+        except Exception:  # One bad order must not break the endpoint that triggered this.
+            logger.exception("Could not expire unpaid MoMo order #%s", order.pk)
+    return cancelled

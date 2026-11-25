@@ -52,6 +52,13 @@ class ProductViewSet(viewsets.ModelViewSet):
             return qs
         return qs.filter(status=Product.Status.ACTIVE)
 
+    def list(self, request, *args, **kwargs):
+        # Put items from unpaid, expired MoMo orders back on sale (throttled).
+        from apps.orders.services import expire_unpaid_momo_orders
+
+        expire_unpaid_momo_orders()
+        return super().list(request, *args, **kwargs)
+
     def get_serializer_class(self):
         if self.action in ("create", "update", "partial_update"):
             return ProductWriteSerializer

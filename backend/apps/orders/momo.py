@@ -17,6 +17,7 @@ Credentials come from environment variables (see backend/.env.example).
 import base64
 import json
 import logging
+import re
 import uuid
 from urllib import error, request
 
@@ -30,6 +31,10 @@ TOKEN_CACHE_KEY = "momo_collection_access_token"
 
 class MomoError(Exception):
     """Raised when MTN MoMo can't be reached or rejects a request."""
+
+
+class MomoNotFound(MomoError):
+    """MTN has no record of the requested payment (HTTP 404)."""
 
 
 def is_configured():
@@ -48,11 +53,17 @@ def _http(method, path, headers=None, body=None, timeout=20):
     try:
         with request.urlopen(req, timeout=timeout) as resp:
             raw = resp.read()
-            return resp.status, (json.loads(raw) if raw else None)
+            # Some MTN replies (e.g. 202 Accepted for Request to Pay) carry an
+            # empty or non-JSON body; only parse when there is real JSON.
+            try:
+                return resp.status, (json.loads(raw) if raw and raw.strip() else None)
+            except ValueError:
+                return resp.status, None
     except error.HTTPError as exc:
         detail = exc.read().decode(errors="replace")[:500]
         logger.warning("MoMo %s %s failed: %s %s", method, path, exc.code, detail)
-        raise MomoError(f"MTN MoMo returned HTTP {exc.code}.") from exc
+        error_class = MomoNotFound if exc.code == 404 else MomoError
+        raise error_class(f"MTN MoMo returned HTTP {exc.code}.") from exc
     except (error.URLError, TimeoutError) as exc:
         logger.warning("MoMo %s %s unreachable: %s", method, path, exc)
         raise MomoError("Could not reach MTN MoMo. Please try again.") from exc
@@ -77,6 +88,12 @@ def _auth_headers():
     }
 
 
+def _safe_text(text):
+    """MTN's gateway firewall rejects some characters (e.g. '#') in messages,
+    so keep only letters, digits, spaces and simple punctuation."""
+    return re.sub(r"[^A-Za-z0-9 .,:\-]", "", text)[:160].strip()
+
+
 def request_to_pay(*, amount, phone, external_id, payer_message, payee_note):
     """Ask MTN to prompt `phone` to pay `amount`. Returns the reference id (UUID string)."""
     if not is_configured():
@@ -86,19 +103,24 @@ def request_to_pay(*, amount, phone, external_id, payer_message, payee_note):
     headers["X-Reference-Id"] = reference_id
     if settings.MOMO_CALLBACK_URL:
         headers["X-Callback-Url"] = settings.MOMO_CALLBACK_URL
-    _http(
+    status, _ = _http(
         "POST",
         "/collection/v1_0/requesttopay",
         headers=headers,
         body={
             "amount": str(amount),
             "currency": settings.MOMO_CURRENCY,
-            "externalId": external_id,
+            "externalId": _safe_text(external_id),
             "payer": {"partyIdType": "MSISDN", "partyId": phone},
-            "payerMessage": payer_message[:160],
-            "payeeNote": payee_note[:160],
+            "payerMessage": _safe_text(payer_message),
+            "payeeNote": _safe_text(payee_note),
         },
     )
+    # MTN accepts a Request to Pay with exactly 202. Anything else (for example
+    # a 200 "Request Rejected" page from its firewall) means it was not created.
+    if status != 202:
+        logger.warning("MoMo requesttopay not accepted: HTTP %s", status)
+        raise MomoError("MTN MoMo did not accept the payment request. Please try again.")
     return reference_id
 
 

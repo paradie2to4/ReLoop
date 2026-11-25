@@ -167,6 +167,23 @@ class MomoPaymentTests(APITestCase):
         self.assertNotEqual(response.data["payment_status"], "PAID")
         self.assertEqual(response.data["momo_payment"]["status"], "FAILED")
 
+    def test_payment_mtn_never_recorded_fails_after_grace_period(self, mock_status, mock_pay):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        from . import momo
+
+        self.pay()
+        mock_status.side_effect = momo.MomoNotFound("MTN MoMo returned HTTP 404.")
+        response = self.check()
+        self.assertEqual(response.data["momo_payment"]["status"], "PENDING")  # still within grace period
+
+        MomoPayment.objects.update(created_at=timezone.now() - timedelta(minutes=3))
+        response = self.check()
+        self.assertEqual(response.data["momo_payment"]["status"], "FAILED")
+        self.assertEqual(response.data["payment_status"], "FAILED")
+
     def test_second_prompt_blocked_while_first_is_pending(self, mock_status, mock_pay):
         self.pay()
         mock_status.return_value = {"status": "PENDING"}
@@ -213,6 +230,89 @@ class MomoPaymentTests(APITestCase):
         self.assertEqual(Order.objects.get(id=self.order_id).payment_status, "PAID")
 
 
+@override_settings(**MOMO_TEST_SETTINGS, MOMO_ORDER_EXPIRY_MINUTES=30)
+@patch("apps.orders.momo.request_to_pay", return_value=REFERENCE)
+@patch("apps.orders.momo.get_payment_status")
+class UnpaidOrderTests(APITestCase):
+    """Buyer cancellation and automatic expiry of unpaid MoMo orders."""
+
+    def setUp(self):
+        from django.core.cache import cache
+
+        cache.clear()
+        self.category = Category.objects.create(name="Electronics")
+        self.seller = User.objects.create_user(email="seller@example.com", password="Pass1234!", full_name="Seller", is_seller=True)
+        self.buyer = User.objects.create_user(email="buyer@example.com", password="Pass1234!", full_name="Buyer")
+        self.product = Product.objects.create(
+            seller=self.seller, title="Used Phone", description="desc", category=self.category,
+            transaction_type=Product.TransactionType.FOR_SALE, price=Decimal("50000"),
+            condition=Product.Condition.GOOD, location="Kigali", quantity=1,
+        )
+        self.client.force_authenticate(self.buyer)
+        self.client.post(reverse("cart-items"), {"product_id": self.product.id, "quantity": 1})
+        self.order_id = self.client.post(
+            reverse("order-list"), {"payment_method": "MOMO", "shipping_location": "Kigali"}
+        ).data["id"]
+
+    def age_order(self, minutes):
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        Order.objects.filter(id=self.order_id).update(created_at=timezone.now() - timedelta(minutes=minutes))
+
+    def test_buyer_can_cancel_unpaid_order_and_stock_returns(self, mock_status, mock_pay):
+        self.client.post(reverse("order-momo-pay", args=[self.order_id]), {"phone": "0781234567"})
+        mock_status.return_value = {"status": "PENDING"}
+        response = self.client.post(reverse("order-cancel", args=[self.order_id]))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["status"], "CANCELLED")
+        self.assertEqual(MomoPayment.objects.get().status, "FAILED")
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.quantity, 1)
+        self.assertEqual(self.product.status, Product.Status.ACTIVE)
+
+    def test_cannot_cancel_if_payment_just_succeeded(self, mock_status, mock_pay):
+        self.client.post(reverse("order-momo-pay", args=[self.order_id]), {"phone": "0781234567"})
+        mock_status.return_value = {"status": "SUCCESSFUL", "amount": "50000", "currency": "EUR"}
+        response = self.client.post(reverse("order-cancel", args=[self.order_id]))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        order = Order.objects.get(id=self.order_id)
+        self.assertEqual(order.payment_status, "PAID")
+        self.assertNotEqual(order.status, "CANCELLED")
+
+    def test_only_buyer_can_cancel(self, mock_status, mock_pay):
+        self.client.force_authenticate(self.seller)
+        response = self.client.post(reverse("order-cancel", args=[self.order_id]))
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Order.objects.get(id=self.order_id).status, "PENDING")
+
+    def test_old_unpaid_momo_order_expires_and_product_is_back_on_sale(self, mock_status, mock_pay):
+        self.age_order(31)
+        self.client.force_authenticate(None)
+        response = self.client.get(reverse("product-list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Order.objects.get(id=self.order_id).status, "CANCELLED")
+        self.assertIn(self.product.id, [p["id"] for p in response.data["results"]])
+
+    def test_recent_unpaid_order_is_kept(self, mock_status, mock_pay):
+        self.age_order(5)
+        self.client.get(reverse("order-list"))
+        self.assertEqual(Order.objects.get(id=self.order_id).status, "PENDING")
+
+    def test_paid_order_never_expires(self, mock_status, mock_pay):
+        self.client.post(reverse("order-momo-pay", args=[self.order_id]), {"phone": "0781234567"})
+        self.age_order(60)
+        # MTN confirms the payment while the expiry check runs: the order must be kept.
+        mock_status.return_value = {"status": "SUCCESSFUL", "amount": "50000", "currency": "EUR"}
+        from .services import expire_unpaid_momo_orders
+
+        self.assertEqual(expire_unpaid_momo_orders(force=True), 0)
+        order = Order.objects.get(id=self.order_id)
+        self.assertEqual(order.payment_status, "PAID")
+        self.assertEqual(order.status, "PENDING")
+
+
 @override_settings(**MOMO_TEST_SETTINGS, MOMO_BASE_URL="https://sandbox.momodeveloper.mtn.com", MOMO_CALLBACK_URL="")
 class MomoClientTests(APITestCase):
     """Checks the exact HTTP requests sent to MTN (the network itself is mocked)."""
@@ -234,12 +334,15 @@ class MomoClientTests(APITestCase):
             resp.__enter__.return_value = resp
             return resp
 
+        accepted = MagicMock(status=202)
+        accepted.read.return_value = b"Accepted"  # MTN's 202 body is not JSON
+        accepted.__enter__.return_value = accepted
         mock_urlopen.side_effect = [
             fake_response(200, {"access_token": "tok123", "expires_in": 3600}),
-            fake_response(202, None),
+            accepted,
         ]
         ref = momo.request_to_pay(amount="50000", phone="250781234567", external_id="reloop-order-1",
-                                  payer_message="ReLoop order #1", payee_note="Payment")
+                                  payer_message="ReLoop order #1 <b>", payee_note="Payment")
 
         token_req = mock_urlopen.call_args_list[0].args[0]
         self.assertEqual(token_req.full_url, "https://sandbox.momodeveloper.mtn.com/collection/token/")
@@ -255,7 +358,26 @@ class MomoClientTests(APITestCase):
         body = json.loads(pay_req.data)
         self.assertEqual(body["currency"], "EUR")
         self.assertEqual(body["payer"], {"partyIdType": "MSISDN", "partyId": "250781234567"})
+        # MTN's firewall rejects '#' and similar characters, so they are stripped.
+        self.assertEqual(body["payerMessage"], "ReLoop order 1 b")
         uuid.UUID(ref)  # a valid UUID
+
+    @patch("apps.orders.momo.request.urlopen")
+    def test_rejected_request_to_pay_raises(self, mock_urlopen):
+        """MTN's firewall answers 200 with an HTML 'Request Rejected' page: that is a failure."""
+        import json
+
+        from . import momo
+
+        token = MagicMock(status=200)
+        token.read.return_value = json.dumps({"access_token": "t", "expires_in": 3600}).encode()
+        token.__enter__.return_value = token
+        rejected = MagicMock(status=200)
+        rejected.read.return_value = b"<html><head><title>Request Rejected</title></head></html>"
+        rejected.__enter__.return_value = rejected
+        mock_urlopen.side_effect = [token, rejected]
+        with self.assertRaises(momo.MomoError):
+            momo.request_to_pay(amount="1", phone="250781234567", external_id="x", payer_message="m", payee_note="n")
 
     @patch("apps.orders.momo.request.urlopen")
     def test_http_errors_become_momo_errors(self, mock_urlopen):

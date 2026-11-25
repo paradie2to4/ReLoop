@@ -242,6 +242,8 @@ MOMO_SUBSCRIPTION_KEY = config("MOMO_SUBSCRIPTION_KEY", default="")
 MOMO_API_USER = config("MOMO_API_USER", default="")
 MOMO_API_KEY = config("MOMO_API_KEY", default="")
 MOMO_CALLBACK_URL = config("MOMO_CALLBACK_URL", default="")
+# Unpaid MoMo orders are cancelled after this long, so their items go back on sale.
+MOMO_ORDER_EXPIRY_MINUTES = config("MOMO_ORDER_EXPIRY_MINUTES", default=30, cast=int)
 
 # --- ReLoop domain config ----------------------------------------------------
 # Editable, non-scientific estimates used by the impact calculation service.
