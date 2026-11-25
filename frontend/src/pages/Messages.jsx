@@ -51,7 +51,7 @@ export default function Messages() {
   return (
     <div>
       <h1 className="font-display text-2xl font-semibold text-navy-900">Messages</h1>
-      <div className="mt-6 grid gap-4 rounded-lg border border-sand-200 bg-surface lg:grid-cols-3" style={{ minHeight: '28rem' }}>
+      <div className="glass-card mt-6 grid gap-4 rounded-lg border border-sand-200 bg-surface lg:grid-cols-3" style={{ minHeight: '28rem' }}>
         <div className="border-sand-200 lg:col-span-1 lg:border-r">
           {!conversations.length ? (
             <EmptyState icon={MessageCircle} title="No conversations yet" description="Message a seller from a product page to start chatting." />

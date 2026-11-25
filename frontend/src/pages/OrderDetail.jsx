@@ -109,7 +109,7 @@ export default function OrderDetail() {
 
       <div className="mt-6 space-y-3">
         {order.items.map((item) => (
-          <div key={item.id} className="flex items-center gap-4 rounded-lg border border-sand-200 bg-surface p-4">
+          <div key={item.id} className="glass-card flex items-center gap-4 rounded-lg border border-sand-200 bg-surface p-4">
             <Link to={`/products/${item.product.id}`} className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-sand-100">
               {item.product.primary_image && <img src={item.product.primary_image} alt="" className="h-full w-full object-cover" />}
             </Link>
@@ -122,7 +122,7 @@ export default function OrderDetail() {
         ))}
       </div>
 
-      <div className="mt-6 grid gap-4 rounded-lg border border-sand-200 bg-surface p-5 sm:grid-cols-2">
+      <div className="glass-card mt-6 grid gap-4 rounded-lg border border-sand-200 bg-surface p-5 sm:grid-cols-2">
         <Info label="Total" value={formatRWF(order.total_amount)} />
         <Info
           label="Payment method"
@@ -155,7 +155,7 @@ export default function OrderDetail() {
       )}
 
       {isSellerOfOrder && order.status !== 'COMPLETED' && order.status !== 'CANCELLED' && (
-        <div className="mt-6 flex flex-wrap items-center gap-3 rounded-lg border border-sand-200 bg-surface p-5">
+        <div className="glass-card mt-6 flex flex-wrap items-center gap-3 rounded-lg border border-sand-200 bg-surface p-5">
           <p className="text-sm font-medium text-navy-900">Seller actions:</p>
           <Select
             className="w-48"
@@ -173,7 +173,7 @@ export default function OrderDetail() {
       )}
 
       {isBuyer && order.status === 'COMPLETED' && !reviewSubmitted && (
-        <form onSubmit={handleReviewSubmit} className="mt-6 space-y-3 rounded-lg border border-sand-200 bg-surface p-5">
+        <form onSubmit={handleReviewSubmit} className="glass-card mt-6 space-y-3 rounded-lg border border-sand-200 bg-surface p-5">
           <p className="text-sm font-medium text-navy-900">Leave a review for the seller</p>
           <Rating value={review.rating} onChange={(value) => setReview({ ...review, rating: value })} size={20} />
           <Textarea placeholder="How was your experience?" value={review.comment} onChange={(e) => setReview({ ...review, comment: e.target.value })} />
@@ -250,7 +250,7 @@ function MomoPanel({ order, onUpdate }) {
   }
 
   return (
-    <div className="mt-6 space-y-3 rounded-lg border border-sand-200 bg-surface p-5">
+    <div className="glass-card mt-6 space-y-3 rounded-lg border border-sand-200 bg-surface p-5">
       <div className="flex items-center gap-2">
         <Smartphone size={18} className="text-teal-700" />
         <p className="text-sm font-medium text-navy-900">Pay {formatRWF(order.total_amount)} with MTN Mobile Money</p>

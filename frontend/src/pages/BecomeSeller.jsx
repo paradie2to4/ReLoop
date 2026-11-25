@@ -27,7 +27,7 @@ export default function BecomeSeller() {
   }
 
   return (
-    <div className="mx-auto flex max-w-lg flex-col items-center gap-4 rounded-lg border border-sand-200 bg-surface p-10 text-center">
+    <div className="glass-card mx-auto flex max-w-lg flex-col items-center gap-4 rounded-lg border border-sand-200 bg-surface p-10 text-center">
       <Store size={36} className="text-teal-600" />
       <h1 className="text-xl font-semibold text-navy-900">Become a ReLoop seller</h1>
       <p className="text-sm text-navy-600">

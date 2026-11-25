@@ -33,7 +33,7 @@ export default function ProductCard({ product, onWishlistChange }) {
   return (
     <Link
       to={`/products/${product.id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-sand-200 bg-surface transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-400/60 hover:shadow-xl hover:shadow-black/10"
+      className="glass-card group flex flex-col overflow-hidden rounded-2xl border border-sand-200 bg-surface transition-all duration-200 hover:-translate-y-0.5 hover:border-teal-400/60 hover:shadow-xl hover:shadow-black/10"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-sand-100">
         {product.primary_image ? (

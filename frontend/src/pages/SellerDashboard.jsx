@@ -75,7 +75,7 @@ export default function SellerDashboard() {
       {tab === 'My Listings' && (
         <div className="mt-6 space-y-2">
           {products.map((p) => (
-            <div key={p.id} className="flex items-center justify-between gap-4 rounded-lg border border-sand-200 bg-surface p-3">
+            <div key={p.id} className="glass-card flex items-center justify-between gap-4 rounded-lg border border-sand-200 bg-surface p-3">
               <div className="flex items-center gap-3">
                 <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-sand-100">
                   {p.primary_image && <img src={p.primary_image} alt="" className="h-full w-full object-cover" />}
@@ -100,7 +100,7 @@ export default function SellerDashboard() {
       {tab === 'Orders' && (
         <div className="mt-6 space-y-2">
           {orders.map((order) => (
-            <Link key={order.id} to={`/orders/${order.id}`} className="flex items-center justify-between rounded-lg border border-sand-200 bg-surface p-4 hover:shadow-sm">
+            <Link key={order.id} to={`/orders/${order.id}`} className="glass-card flex items-center justify-between rounded-lg border border-sand-200 bg-surface p-4 hover:shadow-sm">
               <div>
                 <p className="text-sm font-medium text-navy-900">Order #{order.id}</p>
                 <p className="text-xs text-navy-500">{timeAgo(order.created_at)}</p>
@@ -117,7 +117,7 @@ export default function SellerDashboard() {
 
 function StatCard({ icon: Icon, label, value }) {
   return (
-    <div className="rounded-lg border border-sand-200 bg-surface p-5">
+    <div className="glass-card rounded-lg border border-sand-200 bg-surface p-5">
       {Icon && <Icon size={18} className="text-teal-600" />}
       <p className="mt-2 font-display text-2xl font-semibold text-navy-900">{value}</p>
       <p className="text-xs text-navy-500">{label}</p>

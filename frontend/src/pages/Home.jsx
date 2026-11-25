@@ -119,7 +119,7 @@ export default function Home() {
 
 function StatCard({ icon: Icon, label, description }) {
   return (
-    <div className="group rounded-2xl border border-sand-200 bg-surface p-5 transition-all hover:-translate-y-0.5 hover:border-teal-400/60">
+    <div className="glass-card group rounded-2xl border border-sand-200 bg-surface p-5 transition-all hover:-translate-y-0.5 hover:border-teal-400/60">
       <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-teal-600 transition-colors group-hover:bg-teal-600 group-hover:text-on-accent">
         <Icon size={20} />
       </span>
@@ -131,7 +131,7 @@ function StatCard({ icon: Icon, label, description }) {
 
 function ImpactFact({ value, detail }) {
   return (
-    <div className="rounded-2xl border border-sand-200 bg-surface p-4">
+    <div className="glass-card rounded-2xl border border-sand-200 bg-surface p-4">
       <p className="font-display text-lg font-bold text-teal-300">{value}</p>
       <p className="mt-1 text-xs text-navy-600">{detail}</p>
     </div>

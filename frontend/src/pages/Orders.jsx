@@ -39,7 +39,7 @@ export default function Orders() {
       ) : (
         <div className="mt-6 space-y-3">
           {orders.map((order) => (
-            <Link key={order.id} to={`/orders/${order.id}`} className="flex items-center justify-between rounded-lg border border-sand-200 bg-surface p-4 hover:shadow-sm">
+            <Link key={order.id} to={`/orders/${order.id}`} className="glass-card flex items-center justify-between rounded-lg border border-sand-200 bg-surface p-4 hover:shadow-sm">
               <div>
                 <p className="text-sm font-medium text-navy-900">Order #{order.id}</p>
                 <p className="text-xs text-navy-500">{order.items.length} item(s) · {formatDate(order.created_at)}</p>

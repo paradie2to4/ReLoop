@@ -86,7 +86,7 @@ export default function SellItem() {
 
       <StepIndicator steps={STEPS} current={step} />
 
-      <div className="rounded-lg border border-sand-200 bg-surface p-6">
+      <div className="glass-card rounded-lg border border-sand-200 bg-surface p-6">
         {step === 0 && (
           <div className="space-y-4">
             <Input label="Title" value={form.title} onChange={(e) => update('title', e.target.value)} placeholder="e.g. Used Mountain Bicycle" />

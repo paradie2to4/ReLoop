@@ -89,7 +89,7 @@ export default function EditProduct() {
         </Button>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-4 rounded-lg border border-sand-200 bg-surface p-6">
+      <form onSubmit={handleSave} className="glass-card space-y-4 rounded-lg border border-sand-200 bg-surface p-6">
         <Input label="Title" value={form.title} onChange={(e) => update('title', e.target.value)} />
         <Textarea label="Description" value={form.description} onChange={(e) => update('description', e.target.value)} rows={5} />
         <Select label="Category" value={form.category} onChange={(e) => update('category', e.target.value)} options={categories.map((c) => ({ value: c.id, label: c.name }))} />

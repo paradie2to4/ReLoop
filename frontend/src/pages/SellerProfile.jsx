@@ -34,7 +34,7 @@ export default function SellerProfile() {
 
   return (
     <div>
-      <div className="flex flex-col items-start gap-4 rounded-lg border border-sand-200 bg-surface p-6 sm:flex-row sm:items-center">
+      <div className="glass-card flex flex-col items-start gap-4 rounded-lg border border-sand-200 bg-surface p-6 sm:flex-row sm:items-center">
         <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-navy-900 text-xl font-semibold text-sand-50">
           {seller.avatar ? <img src={seller.avatar} alt="" className="h-full w-full object-cover" /> : seller.full_name?.[0]}
         </div>
@@ -69,7 +69,7 @@ export default function SellerProfile() {
           <h2 className="mt-10 font-display text-xl font-semibold text-navy-900">Reviews</h2>
           <div className="mt-4 space-y-3">
             {reviews.map((review) => (
-              <div key={review.id} className="rounded-lg border border-sand-200 bg-surface p-4">
+              <div key={review.id} className="glass-card rounded-lg border border-sand-200 bg-surface p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-navy-900">{review.reviewer_name}</p>
                   <Rating value={review.rating} />

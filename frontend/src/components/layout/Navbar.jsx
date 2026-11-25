@@ -64,7 +64,7 @@ export default function Navbar() {
   const iconLink = 'relative rounded-lg p-2 text-navy-700 transition-colors hover:bg-sand-200 hover:text-navy-900'
 
   return (
-    <header className="sticky top-0 z-40 border-b border-sand-200 bg-sand-50/80 backdrop-blur-md">
+    <header className="site-header sticky top-0 z-40 border-b border-sand-200 bg-sand-50/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Logo />
 
@@ -113,7 +113,7 @@ export default function Navbar() {
                   <User size={16} />
                 </button>
                 {menuOpen && (
-                  <div className="absolute right-0 mt-2 w-56 rounded-xl border border-sand-200 bg-surface py-1.5 shadow-xl shadow-black/10">
+                  <div className="glass-card absolute right-0 mt-2 w-56 rounded-xl border border-sand-200 bg-surface py-1.5 shadow-xl shadow-black/10">
                     <p className="truncate border-b border-sand-200 px-4 py-2 text-xs text-navy-500">{user?.email}</p>
                     <MenuLink to="/profile" onClick={() => setMenuOpen(false)}>My Profile</MenuLink>
                     <MenuLink to="/orders" onClick={() => setMenuOpen(false)}>My Orders</MenuLink>

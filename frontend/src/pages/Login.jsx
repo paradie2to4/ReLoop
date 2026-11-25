@@ -33,7 +33,7 @@ export default function Login() {
       <Link to="/" className="mb-6 flex items-center gap-2 font-display text-2xl font-semibold text-navy-900">
         <Leaf className="text-teal-600" /> ReLoop
       </Link>
-      <div className="w-full rounded-lg border border-sand-200 bg-surface p-8">
+      <div className="glass-card w-full rounded-lg border border-sand-200 bg-surface p-8">
         <h1 className="text-xl font-semibold text-navy-900">Welcome back</h1>
         <p className="mt-1 text-sm text-navy-600">Log in to continue giving products another life.</p>
 

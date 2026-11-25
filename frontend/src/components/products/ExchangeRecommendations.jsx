@@ -15,7 +15,7 @@ export default function ExchangeRecommendations({ recommendations }) {
           <Link
             key={product.id}
             to={`/products/${product.id}`}
-            className="flex gap-3 rounded-lg border border-sand-200 bg-surface p-3 hover:shadow-sm"
+            className="glass-card flex gap-3 rounded-lg border border-sand-200 bg-surface p-3 hover:shadow-sm"
           >
             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-sand-100">
               {product.primary_image && <img src={product.primary_image} alt="" className="h-full w-full object-cover" />}

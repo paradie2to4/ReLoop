@@ -46,7 +46,7 @@ export default function DonationRequests() {
           {donations.map((d) => {
             const isDonor = d.product_detail?.seller?.id === user.id
             return (
-              <div key={d.id} className="flex items-start justify-between gap-4 rounded-lg border border-sand-200 bg-surface p-4">
+              <div key={d.id} className="glass-card flex items-start justify-between gap-4 rounded-lg border border-sand-200 bg-surface p-4">
                 <div className="flex flex-1 items-start gap-3">
                   <Link to={`/products/${d.product}`} className="h-14 w-14 shrink-0 overflow-hidden rounded-md bg-sand-100">
                     {d.product_detail?.primary_image && <img src={d.product_detail.primary_image} alt="" className="h-full w-full object-cover" />}

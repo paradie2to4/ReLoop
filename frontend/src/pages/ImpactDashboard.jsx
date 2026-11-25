@@ -48,7 +48,7 @@ export default function ImpactDashboard() {
           <h2 className="font-semibold text-navy-900">Recent impact records</h2>
           <div className="mt-3 space-y-2">
             {data.recent_records.map((r) => (
-              <div key={r.id} className="flex items-center justify-between rounded-lg border border-sand-200 bg-surface p-3 text-sm">
+              <div key={r.id} className="glass-card flex items-center justify-between rounded-lg border border-sand-200 bg-surface p-3 text-sm">
                 <div>
                   <p className="font-medium text-navy-900">{r.product_title}</p>
                   <p className="text-xs text-navy-500">{r.transaction_type} · {formatDate(r.created_at)}</p>
@@ -67,7 +67,7 @@ const TONE_CLASS = { teal: 'bg-teal-50 text-teal-700', navy: 'bg-sand-100 text-n
 
 function StatCard({ icon: Icon, label, value, tone }) {
   return (
-    <div className="rounded-lg border border-sand-200 bg-surface p-5">
+    <div className="glass-card rounded-lg border border-sand-200 bg-surface p-5">
       <div className={`inline-flex rounded-md p-2 ${TONE_CLASS[tone] || TONE_CLASS.navy}`}>
         <Icon size={18} />
       </div>

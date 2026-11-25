@@ -56,7 +56,7 @@ export default function Profile() {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <form onSubmit={handleSave} className="space-y-4 rounded-lg border border-sand-200 bg-surface p-6">
+          <form onSubmit={handleSave} className="glass-card space-y-4 rounded-lg border border-sand-200 bg-surface p-6">
             <div className="flex items-center gap-4">
               <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-navy-900 text-xl font-semibold text-sand-50">
                 {avatarFile ? (
@@ -88,7 +88,7 @@ export default function Profile() {
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-lg border border-sand-200 bg-surface p-5">
+          <div className="glass-card rounded-lg border border-sand-200 bg-surface p-5">
             <p className="text-xs uppercase tracking-wide text-navy-500">Member since</p>
             <p className="mt-1 text-sm font-medium text-navy-900">{formatDate(user.date_joined)}</p>
             <p className="mt-4 text-xs uppercase tracking-wide text-navy-500">Role</p>
@@ -100,7 +100,7 @@ export default function Profile() {
               </>
             )}
           </div>
-          <div className="rounded-lg border border-sand-200 bg-surface p-5">
+          <div className="glass-card rounded-lg border border-sand-200 bg-surface p-5">
             <p className="text-xs uppercase tracking-wide text-navy-500">Activity</p>
             <dl className="mt-2 space-y-2 text-sm">
               <Row label="Items sold" value={stats.items_sold} />
