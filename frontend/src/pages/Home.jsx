@@ -83,13 +83,12 @@ export default function Home() {
 
       <section
         id="impact"
-        data-theme="dark"
-        className="relative my-16 overflow-hidden rounded-3xl border border-sand-200 bg-sand-100 px-6 py-12 text-navy-900 sm:px-12"
+        className="glass-card relative isolate my-16 overflow-hidden rounded-3xl border border-sand-200 bg-surface px-6 py-12 text-navy-900 sm:px-12"
       >
         <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-teal-500/20 blur-3xl" />
         <div className="relative grid gap-8 lg:grid-cols-2 lg:items-center">
           <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-100 px-3 py-1 text-xs font-semibold text-teal-300">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">
               <TrendingUp size={14} /> Your impact
             </span>
             <h2 className="mt-4 font-display text-3xl font-extrabold sm:text-4xl">Every reused item counts.</h2>
@@ -132,7 +131,7 @@ function StatCard({ icon: Icon, label, description }) {
 function ImpactFact({ value, detail }) {
   return (
     <div className="glass-card rounded-2xl border border-sand-200 bg-surface p-4">
-      <p className="font-display text-lg font-bold text-teal-300">{value}</p>
+      <p className="font-display text-lg font-bold text-teal-600">{value}</p>
       <p className="mt-1 text-xs text-navy-600">{detail}</p>
     </div>
   )
