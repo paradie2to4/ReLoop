@@ -47,7 +47,7 @@ export default function Register() {
       <Link to="/" className="mb-6 flex items-center gap-2 font-display text-2xl font-semibold text-navy-900">
         <Leaf className="text-teal-600" /> ReLoop
       </Link>
-      <div className="w-full rounded-lg border border-sand-200 bg-white p-8">
+      <div className="w-full rounded-lg border border-sand-200 bg-surface p-8">
         <h1 className="text-xl font-semibold text-navy-900">Create your account</h1>
         <p className="mt-1 text-sm text-navy-600">Join the circular marketplace — it's free.</p>
 

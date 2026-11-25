@@ -1,57 +1,135 @@
 @import "tailwindcss";
 
+/* Dark mode follows the data-theme attribute (set on <html>, or on a section
+   that should always look dark, like the footer). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * ReLoop "Dark premium" theme.
+ * The colour names are kept from the original design so every page picks up
+ * the new theme without per-page changes:
+ *   navy  = text / ink ramp      (900 = strongest text)
+ *   sand  = page backgrounds and borders (50 = page, 200 = hairlines)
+ *   teal  = brand accent (emerald in light mode, mint in dark mode)
+ *   surface = cards, inputs, menus; on-accent = text on teal buttons
+ * Light values live in @theme; dark values override them below.
+ */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  /* Deep navy - primary brand color, nav, footer, dark sections */
-  --color-navy-50: #eef3f6;
-  --color-navy-100: #dce6ec;
-  --color-navy-200: #b7cbd8;
-  --color-navy-300: #8fadc0;
-  --color-navy-400: #648ea3;
-  --color-navy-500: #3d7ea0;
-  --color-navy-600: #2c6684;
-  --color-navy-700: #204f66;
-  --color-navy-800: #163a4d;
-  --color-navy-900: #0d2635;
-  --color-navy-950: #081824;
+  --color-surface: #ffffff;
+  --color-on-accent: #ffffff;
 
-  /* Warm off-white - primary background */
-  --color-sand-50: #fbf8f2;
-  --color-sand-100: #f4eee2;
-  --color-sand-200: #e8dfcc;
-  --color-sand-300: #d9cbae;
-  --color-sand-400: #c7b791;
+  --color-navy-50: #f2f5f3;
+  --color-navy-100: #e3e9e5;
+  --color-navy-200: #c9d3cd;
+  --color-navy-300: #a3b1a9;
+  --color-navy-400: #7c8c84;
+  --color-navy-500: #5e6e66;
+  --color-navy-600: #47564f;
+  --color-navy-700: #33413b;
+  --color-navy-800: #222d28;
+  --color-navy-900: #141b18;
+  --color-navy-950: #0b100e;
 
-  /* Soft sky blue - secondary accent, links */
-  --color-sky-50: #eef7fd;
-  --color-sky-100: #dcecf9;
-  --color-sky-200: #c1e0f5;
-  --color-sky-300: #a3d1ef;
-  --color-sky-400: #71b6e2;
-  --color-sky-500: #4a9bd4;
-  --color-sky-600: #3480b8;
+  --color-sand-50: #f6f8f7;
+  --color-sand-100: #eef2f0;
+  --color-sand-200: #e1e7e4;
+  --color-sand-300: #cdd6d1;
+  --color-sand-400: #b3beb8;
 
-  /* Teal - sustainability / impact accent */
-  --color-teal-50: #e7f6f1;
-  --color-teal-100: #c9ece1;
-  --color-teal-200: #a3ddcb;
-  --color-teal-300: #7bcdb3;
-  --color-teal-400: #47b696;
-  --color-teal-500: #1e9e82;
-  --color-teal-600: #167e68;
-  --color-teal-700: #146353;
+  --color-sky-50: #eff6ff;
+  --color-sky-100: #dbeafe;
+  --color-sky-200: #bfdbfe;
+  --color-sky-300: #93c5fd;
+  --color-sky-400: #60a5fa;
+  --color-sky-500: #3b82f6;
+  --color-sky-600: #2563eb;
+
+  --color-teal-50: #ecfdf5;
+  --color-teal-100: #d1fae5;
+  --color-teal-200: #a7f3d0;
+  --color-teal-300: #6ee7b7;
+  --color-teal-400: #34d399;
+  --color-teal-500: #10b981;
+  --color-teal-600: #059669;
+  --color-teal-700: #047857;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-surface: #141b18;
+  --color-on-accent: #04261a;
+
+  --color-navy-50: #18201c;
+  --color-navy-100: #1e2823;
+  --color-navy-200: #2a3631;
+  --color-navy-300: #3d4b44;
+  --color-navy-400: #5d6d65;
+  --color-navy-500: #8a9a92;
+  --color-navy-600: #a5b4ac;
+  --color-navy-700: #c0ccc6;
+  --color-navy-800: #d8e1dc;
+  --color-navy-900: #eef4f1;
+  --color-navy-950: #f7faf8;
+
+  --color-sand-50: #0c110f;
+  --color-sand-100: #121916;
+  --color-sand-200: #1f2924;
+  --color-sand-300: #2c3833;
+  --color-sand-400: #3c4a43;
+
+  --color-sky-50: #0f1b2d;
+  --color-sky-100: #13233a;
+  --color-sky-200: #1c3354;
+  --color-sky-300: #60a5fa;
+  --color-sky-400: #60a5fa;
+  --color-sky-500: #93c5fd;
+  --color-sky-600: #93c5fd;
+
+  --color-teal-50: #0e261c;
+  --color-teal-100: #123325;
+  --color-teal-200: #1a4734;
+  --color-teal-300: #6ee7b7;
+  --color-teal-400: #34d399;
+  --color-teal-500: #34d399;
+  --color-teal-600: #34d399;
+  --color-teal-700: #6ee7b7;
+
+  --color-red-50: #2a1414;
+  --color-red-200: #5a2424;
+  --color-red-300: #7a2d2d;
+  --color-red-400: #b84444;
+  --color-red-500: #f87171;
+  --color-red-600: #ef4444;
+  --color-red-700: #f87171;
+
+  --color-amber-50: #261e0d;
+  --color-amber-300: #6b5112;
+  --color-amber-700: #fbbf24;
+  --color-amber-900: #fde68a;
+
+  --color-orange-50: #29180c;
+  --color-orange-300: #7a4513;
+  --color-orange-700: #fdba74;
+}
+
+html {
+  background-color: var(--color-sand-50);
 }
 
 body {
   font-family: var(--font-sans);
   background-color: var(--color-sand-50);
   color: var(--color-navy-900);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 ::selection {
-  background-color: var(--color-teal-100);
+  background-color: var(--color-teal-200);
   color: var(--color-navy-900);
 }
 
@@ -62,6 +140,7 @@ body {
 
 .font-display {
   font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
 .scrollbar-thin::-webkit-scrollbar {

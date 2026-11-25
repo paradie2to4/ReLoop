@@ -36,6 +36,7 @@ ReLoop is a **Django REST + React** marketplace purpose-built around five transa
 - Marketplace search, filtering (category, price range, condition, transaction type, location), sorting, and server-side pagination
 - Multi-step "Sell an item" wizard (basic info → condition → transaction type → price → location → images → preview → publish)
 - Real shopping cart (server-persisted) and checkout → Order → seller-managed order status tracking
+- **MTN Mobile Money (MoMo) payments** via the MoMo Collections "Request to Pay" API — see [MTN MoMo payments](#mtn-momo-payments)
 - Smart exchange offers with a rule-based recommendation engine
 - Donation requests with single-acceptance logic
 - Repair provider directory + repair request submission and admin status tracking
@@ -44,7 +45,7 @@ ReLoop is a **Django REST + React** marketplace purpose-built around five transa
 - Personal Impact Dashboard + Seller Dashboard + Admin analytics dashboard
 - drf-spectacular OpenAPI schema, Swagger UI (`/api/docs/`) and ReDoc (`/api/redoc/`)
 - Seed command generating realistic Rwandan-context demo data (30+ products, users, orders, exchanges, donations, repair providers)
-- 34 backend tests covering auth, products, cart/checkout, exchanges, donations, and impact calculation
+- 57 backend tests covering auth, products, cart/checkout, MoMo payments, order cancellation/expiry, exchanges, donations, and impact calculation
 
 ## Technology Stack
 
@@ -191,6 +192,8 @@ ACCESS_TOKEN_LIFETIME_MIN=60
 REFRESH_TOKEN_LIFETIME_DAYS=7
 ```
 
+MTN MoMo variables (`MOMO_*`) are optional; see [MTN MoMo payments](#mtn-momo-payments).
+
 If `DATABASE_URL` is left empty, the backend automatically falls back to local SQLite — handy for a first look, but **PostgreSQL should be used for anything beyond a quick spin-up**, and is required in production.
 
 **frontend/.env** (see `frontend/.env.example`):
@@ -198,6 +201,33 @@ If `DATABASE_URL` is left empty, the backend automatically falls back to local S
 ```
 VITE_API_URL=http://localhost:8000/api
 ```
+
+## MTN MoMo payments
+
+Buyers can choose **MTN Mobile Money (MoMo)** at checkout. ReLoop uses MTN's Collections API:
+
+1. At checkout the buyer enters their MoMo number. The backend sends a **Request to Pay** with a unique reference ID.
+2. MTN shows a prompt on the buyer's phone; they approve it with their PIN.
+3. The order page checks the payment every few seconds (`GET /api/orders/{id}/momo/status/`). The backend asks MTN for the real status and marks the order **PAID** only when MTN says `SUCCESSFUL` and the amount and currency match the order.
+4. If MTN calls the optional callback (`/api/payments/momo/callback/`), the backend does **not** trust the callback body. It looks up the order and re-checks the status with MTN.
+
+Other safeguards: only the buyer can start a payment, a second prompt is blocked while one is pending, a paid order can't be paid again, and sellers can't mark a MoMo order as paid by hand. Failed payments can be retried. Every attempt is stored in the `MomoPayment` table and visible in the Django admin, and paid orders show MTN's transaction ID.
+
+**Unpaid orders don't block stock:** buyers can cancel an order that isn't paid or confirmed yet, and MoMo orders left unpaid for `MOMO_ORDER_EXPIRY_MINUTES` (default 30) are cancelled automatically so their items go back on sale. The check runs (at most once a minute) when the product or order lists are loaded, so no scheduler is needed. `python manage.py expire_unpaid_orders` does the same from a cron job. Before cancelling, the backend asks MTN once more, so an order paid at the last moment is never cancelled.
+
+**Trying it in the sandbox:** any phone number is approved automatically (e.g. `078 123 4567`). Use `46733123450` to see a failed payment.
+
+**Setting it up (sandbox, free):**
+
+1. Sign up at [momodeveloper.mtn.com](https://momodeveloper.mtn.com), subscribe to the **Collections** product, and copy its **Primary key**.
+2. Put it in `backend/.env` as `MOMO_SUBSCRIPTION_KEY=...`, then run:
+   ```
+   python manage.py momo_sandbox_setup
+   ```
+   and copy the printed `MOMO_API_USER` and `MOMO_API_KEY` into `backend/.env` (and into your hosting provider's environment variables).
+3. Restart the backend. MoMo now appears at checkout (it stays hidden while the keys are empty).
+
+The sandbox only uses the currency **EUR** and never moves real money. Going live needs a business account approved by MTN Rwanda, the production base URL and keys, `MOMO_TARGET_ENVIRONMENT=mtnrwanda` and `MOMO_CURRENCY=RWF`. In live mode only MTN Rwanda numbers (078/079) are accepted.
 
 ## Running Locally
 
@@ -314,7 +344,7 @@ Additional seeded sellers/customers: `seller2-4@example.com`, `customer2-3@examp
 
 ## Future Improvements
 
-- Real payment integration (Mobile Money / card) behind the existing `payment_method` abstraction
+- Airtel Money and card payments alongside MTN MoMo; MoMo go-live with MTN Rwanda production keys
 - WebSocket-based live messaging and notifications (currently REST polling)
 - Map-based "Near You" browsing using the existing `latitude`/`longitude` fields
 - Image moderation / automatic content flagging

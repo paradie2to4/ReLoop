@@ -7,7 +7,7 @@ export default function SearchBar({ value, onChange, onSubmit, placeholder = 'Se
         e.preventDefault()
         onSubmit?.(value)
       }}
-      className={`flex items-center gap-2 rounded-md border border-sand-300 bg-white px-3.5 py-2.5 ${className}`}
+      className={`flex items-center gap-2 rounded-md border border-sand-300 bg-surface px-3.5 py-2.5 ${className}`}
     >
       <Search size={18} className="text-navy-500" />
       <input

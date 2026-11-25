@@ -34,6 +34,7 @@ export const ORDER_STATUSES = [
 export const PAYMENT_METHODS = [
   { value: 'CASH', label: 'Cash on Delivery' },
   { value: 'PAY_ON_PICKUP', label: 'Payment on Pickup' },
+  { value: 'MOMO', label: 'MTN Mobile Money (MoMo)' },
 ]
 
 export const REPORT_REASONS = [

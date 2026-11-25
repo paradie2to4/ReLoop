@@ -10,7 +10,7 @@ export default function Select({ label, error, options, placeholder, className =
       )}
       <select
         id={inputId}
-        className={`w-full rounded-md border bg-white px-3.5 py-2.5 text-sm text-navy-900 focus:border-teal-500 ${
+        className={`w-full rounded-md border bg-surface px-3.5 py-2.5 text-sm text-navy-900 focus:border-teal-500 ${
           error ? 'border-red-400' : 'border-sand-300'
         }`}
         {...props}

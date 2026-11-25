@@ -231,6 +231,20 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+# --- MTN Mobile Money (Collections API) --------------------------------------
+# Leave the keys empty to disable MoMo. The sandbox only accepts EUR; to go
+# live, use MTN's production base URL and keys, MOMO_TARGET_ENVIRONMENT
+# "mtnrwanda" and MOMO_CURRENCY "RWF".
+MOMO_BASE_URL = config("MOMO_BASE_URL", default="https://sandbox.momodeveloper.mtn.com")
+MOMO_TARGET_ENVIRONMENT = config("MOMO_TARGET_ENVIRONMENT", default="sandbox")
+MOMO_CURRENCY = config("MOMO_CURRENCY", default="EUR")
+MOMO_SUBSCRIPTION_KEY = config("MOMO_SUBSCRIPTION_KEY", default="")
+MOMO_API_USER = config("MOMO_API_USER", default="")
+MOMO_API_KEY = config("MOMO_API_KEY", default="")
+MOMO_CALLBACK_URL = config("MOMO_CALLBACK_URL", default="")
+# Unpaid MoMo orders are cancelled after this long, so their items go back on sale.
+MOMO_ORDER_EXPIRY_MINUTES = config("MOMO_ORDER_EXPIRY_MINUTES", default=30, cast=int)
+
 # --- ReLoop domain config ----------------------------------------------------
 # Editable, non-scientific estimates used by the impact calculation service.
 # category name -> (avg kg saved per item, kg CO2 saved per item)

@@ -51,7 +51,7 @@ export default function Messages() {
   return (
     <div>
       <h1 className="font-display text-2xl font-semibold text-navy-900">Messages</h1>
-      <div className="mt-6 grid gap-4 rounded-lg border border-sand-200 bg-white lg:grid-cols-3" style={{ minHeight: '28rem' }}>
+      <div className="mt-6 grid gap-4 rounded-lg border border-sand-200 bg-surface lg:grid-cols-3" style={{ minHeight: '28rem' }}>
         <div className="border-sand-200 lg:col-span-1 lg:border-r">
           {!conversations.length ? (
             <EmptyState icon={MessageCircle} title="No conversations yet" description="Message a seller from a product page to start chatting." />
@@ -109,7 +109,7 @@ export default function Messages() {
                   placeholder="Type a message..."
                   className="flex-1 rounded-md border border-sand-300 px-3 py-2 text-sm focus:border-teal-500"
                 />
-                <button type="submit" disabled={sending} className="rounded-md bg-teal-600 p-2.5 text-white disabled:opacity-50">
+                <button type="submit" disabled={sending} className="rounded-md bg-teal-600 p-2.5 text-on-accent disabled:opacity-50">
                   <Send size={16} />
                 </button>
               </form>

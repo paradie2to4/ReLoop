@@ -11,7 +11,7 @@ export default function Textarea({ label, error, className = '', id, rows = 4, .
       <textarea
         id={inputId}
         rows={rows}
-        className={`w-full rounded-md border bg-white px-3.5 py-2.5 text-sm text-navy-900 placeholder:text-navy-500/50 focus:border-teal-500 ${
+        className={`w-full rounded-md border bg-surface px-3.5 py-2.5 text-sm text-navy-900 placeholder:text-navy-500/50 focus:border-teal-500 ${
           error ? 'border-red-400' : 'border-sand-300'
         }`}
         {...props}

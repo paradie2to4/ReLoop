@@ -11,8 +11,8 @@ export default function Rating({ value = 0, count, size = 14, onChange }) {
           key={star}
           size={size}
           className={interactive ? 'cursor-pointer' : ''}
-          fill={star <= Math.round(value) ? '#1e9e82' : 'none'}
-          stroke={star <= Math.round(value) ? '#1e9e82' : '#a3a3a3'}
+          fill={star <= Math.round(value) ? 'var(--color-teal-600)' : 'none'}
+          stroke={star <= Math.round(value) ? 'var(--color-teal-600)' : 'var(--color-navy-300)'}
           onClick={interactive ? () => onChange(star) : undefined}
         />
       ))}

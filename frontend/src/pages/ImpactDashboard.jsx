@@ -36,10 +36,10 @@ export default function ImpactDashboard() {
           <p className="mt-3 font-display text-3xl font-semibold">{data.estimated_weight_saved_kg} kg</p>
           <p className="mt-1 text-sm text-sand-100/70">Estimated waste avoided</p>
         </div>
-        <div className="rounded-lg bg-teal-600 p-6 text-white">
+        <div className="rounded-lg bg-teal-600 p-6 text-on-accent">
           <Leaf size={22} />
           <p className="mt-3 font-display text-3xl font-semibold">{data.estimated_co2_saved_kg} kg</p>
-          <p className="mt-1 text-sm text-white/80">Estimated CO₂ savings</p>
+          <p className="mt-1 text-sm text-on-accent/80">Estimated CO₂ savings</p>
         </div>
       </div>
 
@@ -48,7 +48,7 @@ export default function ImpactDashboard() {
           <h2 className="font-semibold text-navy-900">Recent impact records</h2>
           <div className="mt-3 space-y-2">
             {data.recent_records.map((r) => (
-              <div key={r.id} className="flex items-center justify-between rounded-lg border border-sand-200 bg-white p-3 text-sm">
+              <div key={r.id} className="flex items-center justify-between rounded-lg border border-sand-200 bg-surface p-3 text-sm">
                 <div>
                   <p className="font-medium text-navy-900">{r.product_title}</p>
                   <p className="text-xs text-navy-500">{r.transaction_type} · {formatDate(r.created_at)}</p>
@@ -67,7 +67,7 @@ const TONE_CLASS = { teal: 'bg-teal-50 text-teal-700', navy: 'bg-sand-100 text-n
 
 function StatCard({ icon: Icon, label, value, tone }) {
   return (
-    <div className="rounded-lg border border-sand-200 bg-white p-5">
+    <div className="rounded-lg border border-sand-200 bg-surface p-5">
       <div className={`inline-flex rounded-md p-2 ${TONE_CLASS[tone] || TONE_CLASS.navy}`}>
         <Icon size={18} />
       </div>

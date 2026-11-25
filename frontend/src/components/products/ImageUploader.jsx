@@ -23,11 +23,11 @@ export default function ImageUploader({ files, onChange }) {
             <button
               type="button"
               onClick={() => removeAt(i)}
-              className="absolute right-1 top-1 rounded-full bg-navy-950/70 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+              className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
             >
               <X size={12} />
             </button>
-            {i === 0 && <span className="absolute bottom-1 left-1 rounded-full bg-teal-600 px-1.5 py-0.5 text-[10px] text-white">Primary</span>}
+            {i === 0 && <span className="absolute bottom-1 left-1 rounded-full bg-teal-600 px-1.5 py-0.5 text-[10px] text-on-accent">Primary</span>}
           </div>
         ))}
         <button

@@ -47,7 +47,7 @@ export default function ExchangeRequests() {
             const isReceiver = ex.receiver === user.id
             const isSender = ex.sender === user.id
             return (
-              <div key={ex.id} className="rounded-lg border border-sand-200 bg-white p-4">
+              <div key={ex.id} className="rounded-lg border border-sand-200 bg-surface p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
                     <ExchangeProduct label={isSender ? 'You offer' : `${ex.sender_name} offers`} product={ex.offered_product_detail} />
