@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Leaf } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import AuthShell from '../components/layout/AuthShell'
 import Input from '../components/ui/Input'
 import Select from '../components/ui/Select'
 import Button from '../components/ui/Button'
@@ -43,17 +43,23 @@ export default function Register() {
   }
 
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center py-12">
-      <Link to="/" className="mb-6 flex items-center gap-2 font-display text-2xl font-semibold text-navy-900">
-        <Leaf className="text-teal-600" /> ReLoop
-      </Link>
-      <div className="glass-card w-full rounded-lg border border-sand-200 bg-surface p-8">
-        <h1 className="text-xl font-semibold text-navy-900">Create your account</h1>
-        <p className="mt-1 text-sm text-navy-600">Join the circular marketplace — it's free.</p>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <Input label="Full name" required value={form.full_name} onChange={(e) => update('full_name', e.target.value)} error={errors.full_name} />
-          <Input label="Email" type="email" required value={form.email} onChange={(e) => update('email', e.target.value)} error={errors.email} />
+    <AuthShell
+      title="Create your account"
+      subtitle="Join the circular marketplace. It's free."
+      footer={
+        <>
+          Already have an account?{' '}
+          <Link to="/login" className="font-semibold text-teal-600 hover:underline">
+            Log in
+          </Link>
+        </>
+      }
+    >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input label="Full name" required value={form.full_name} onChange={(e) => update('full_name', e.target.value)} error={errors.full_name} />
+            <Input label="Email" type="email" required value={form.email} onChange={(e) => update('email', e.target.value)} error={errors.email} />
+          </div>
           <Select
             label="Location"
             placeholder="Select your city"
@@ -63,21 +69,15 @@ export default function Register() {
             options={LOCATIONS.map((l) => ({ value: l, label: l }))}
             error={errors.location}
           />
-          <Input label="Password" type="password" required value={form.password} onChange={(e) => update('password', e.target.value)} error={errors.password} hint="At least 8 characters." />
-          <Input label="Confirm password" type="password" required value={form.password2} onChange={(e) => update('password2', e.target.value)} error={errors.password2} />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input label="Password" type="password" required value={form.password} onChange={(e) => update('password', e.target.value)} error={errors.password} hint="At least 8 characters." />
+            <Input label="Confirm password" type="password" required value={form.password2} onChange={(e) => update('password2', e.target.value)} error={errors.password2} />
+          </div>
           {errors.non_field_errors && <p className="text-sm text-red-600">{errors.non_field_errors}</p>}
-          <Button type="submit" className="w-full" loading={loading}>
+          <Button type="submit" variant="accent" size="lg" className="w-full" loading={loading}>
             Create account
           </Button>
         </form>
-
-        <p className="mt-6 text-center text-sm text-navy-600">
-          Already have an account?{' '}
-          <Link to="/login" className="font-medium text-teal-600 hover:underline">
-            Log in
-          </Link>
-        </p>
-      </div>
-    </div>
+    </AuthShell>
   )
 }

@@ -4,7 +4,7 @@ import Footer from '../components/layout/Footer'
 
 export default function DashboardLayout({ title, links }) {
   return (
-    <div className="flex min-h-screen flex-col bg-sand-50">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row">
         <aside className="w-full shrink-0 lg:w-60">

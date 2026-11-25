@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Leaf } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import AuthShell from '../components/layout/AuthShell'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
 import { apiErrorMessage } from '../services/api'
@@ -29,15 +29,25 @@ export default function Login() {
   }
 
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center py-12">
-      <Link to="/" className="mb-6 flex items-center gap-2 font-display text-2xl font-semibold text-navy-900">
-        <Leaf className="text-teal-600" /> ReLoop
-      </Link>
-      <div className="glass-card w-full rounded-lg border border-sand-200 bg-surface p-8">
-        <h1 className="text-xl font-semibold text-navy-900">Welcome back</h1>
-        <p className="mt-1 text-sm text-navy-600">Log in to continue giving products another life.</p>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+    <AuthShell
+      title="Welcome back"
+      subtitle="Log in to continue giving products another life."
+      footer={
+        <>
+          Don't have an account?{' '}
+          <Link to="/register" className="font-semibold text-teal-600 hover:underline">
+            Sign up free
+          </Link>
+        </>
+      }
+      aside={
+        <div className="mt-4 w-full rounded-2xl border border-dashed border-sand-300 bg-surface/60 p-4 text-xs text-navy-600">
+          <p className="font-semibold text-navy-800">Try a demo account (password: DemoPass123!)</p>
+          <p className="mt-1">admin@example.com · seller@example.com · customer@example.com</p>
+        </div>
+      }
+    >
+        <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             label="Email"
             type="email"
@@ -53,23 +63,10 @@ export default function Login() {
             onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <Button type="submit" className="w-full" loading={loading}>
+          <Button type="submit" variant="accent" size="lg" className="w-full" loading={loading}>
             Log in
           </Button>
         </form>
-
-        <p className="mt-6 text-center text-sm text-navy-600">
-          Don't have an account?{' '}
-          <Link to="/register" className="font-medium text-teal-600 hover:underline">
-            Sign up
-          </Link>
-        </p>
-      </div>
-
-      <div className="mt-6 w-full rounded-lg border border-dashed border-sand-300 bg-surface/60 p-4 text-xs text-navy-600">
-        <p className="font-medium text-navy-800">Demo accounts (password: DemoPass123!)</p>
-        <p>admin@example.com · seller@example.com · customer@example.com</p>
-      </div>
-    </div>
+    </AuthShell>
   )
 }
